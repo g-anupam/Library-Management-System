@@ -107,7 +107,7 @@ const Login = () => {
               <MenuBookIcon sx={{ fontSize: 32, color: "white" }} />
             </div>
             <span className="text-3xl font-bold text-gray-900">
-              Zosh Library
+              Max Library
             </span>
           </Link>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
