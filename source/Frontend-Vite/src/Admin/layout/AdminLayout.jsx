@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import NotificationBell from '../../components/notification/NotificationBell';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -647,13 +648,7 @@ export default function AdminLayout() {
             })?.title || 'Admin Dashboard'}
           </Typography>
 
-          <Tooltip title="Notifications">
-            <IconButton>
-              <Badge badgeContent={5} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-          </Tooltip>
+          <NotificationBell />
 
           <Tooltip title="Settings">
             <IconButton sx={{ ml: 1 }}>

@@ -100,6 +100,7 @@ function App() {
             <Route path="/admin/payments" element={<AdminPaymentsPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/fines" element={<AdminFinesPage />} />
+            <Route path="/notifications" element={<NotificationPage />} />
             <Route
               path="/admin/books"
               element={
