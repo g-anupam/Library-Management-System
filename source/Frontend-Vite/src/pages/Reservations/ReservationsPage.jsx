@@ -15,7 +15,7 @@ import {
 
 import { CalendarIcon } from "@mui/x-date-pickers";
 import { useDispatch } from "react-redux";
-import { getMyReservations } from "../../store/features/reservations/reservationThunk";
+import { cancelReservation, fulfillReservation, getMyReservations } from "../../store/features/reservations/reservationThunk";
 import { useSelector } from "react-redux";
 import { getStatusColor } from "./getStatusColor";
 import ReservationCard from "./ReservationCard";
@@ -72,10 +72,25 @@ const ReservationsPage = () => {
   };
 
   const handleCancelReservation = async () => {
-    showSnackbar("Reservation cancelled successfully", "success");
+    const result = await dispatch(cancelReservation(selectedReservation.id));
+    if (cancelReservation.fulfilled.match(result)) {
+      showSnackbar("Reservation cancelled successfully", "success");
+      loadReservations();
+    } else {
+      showSnackbar(result.payload || "Failed to cancel reservation", "error");
+    }
     setCancelDialogOpen(false);
     setSelectedReservation(null);
-    
+  };
+
+  const handleFulfillReservation = async (id) => {
+    const result = await dispatch(fulfillReservation(id));
+    if (fulfillReservation.fulfilled.match(result)) {
+      showSnackbar("Book checked out successfully!", "success");
+      loadReservations();
+    } else {
+      showSnackbar(result.payload || "Failed to check out book", "error");
+    }
   };
 
 
@@ -272,6 +287,8 @@ const ReservationsPage = () => {
                 key={reservation.id}
                 reservation={reservation}
                 index={index}
+                onCancel={(r) => { setSelectedReservation(r); setCancelDialogOpen(true); }}
+                onCheckout={handleFulfillReservation}
               />
             ))}
           </div>

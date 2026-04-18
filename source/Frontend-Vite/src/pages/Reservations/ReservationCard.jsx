@@ -6,16 +6,12 @@ import { useState } from "react";
 import { formatDate } from "../../utils/formateDate";
 import { CalendarIcon } from "@mui/x-date-pickers";
 
-const ReservationCard = ({ reservation, index }) => {
+const ReservationCard = ({ reservation, index, onCancel, onCheckout }) => {
   const [queuePositions, setQueuePositions] = useState({});
 
   const queuePos = queuePositions[reservation.id];
   const statusColors = getStatusColor(reservation.status);
   const timeRemaining = getTimeRemaining(reservation.expiresAt);
-
-  const handleFulfillReservation = async (id) => {
-    // showSnackbar("Reservation fulfilled successfully!", "success");
-  };
 
     const getStatusIcon = (status) => {
       const iconClass = "w-5 h-5";
@@ -177,7 +173,7 @@ const ReservationCard = ({ reservation, index }) => {
         <div className="px-6 pb-6 flex gap-2">
           {reservation.status === "AVAILABLE" && (
             <button
-              onClick={() => handleFulfillReservation(reservation.id)}
+              onClick={() => onCheckout(reservation.id)}
               className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               <CheckCircle className="w-5 h-5" />
@@ -185,10 +181,7 @@ const ReservationCard = ({ reservation, index }) => {
             </button>
           )}
           <button
-            onClick={() => {
-              // setSelectedReservation(reservation);
-              // setCancelDialogOpen(true);
-            }}
+            onClick={() => onCancel(reservation)}
             className={`${
               reservation.status === "AVAILABLE" ? "" : "flex-1"
             } border-2 border-red-500 text-red-600 font-bold py-3 px-4 rounded-lg hover:bg-red-50 transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2`}
