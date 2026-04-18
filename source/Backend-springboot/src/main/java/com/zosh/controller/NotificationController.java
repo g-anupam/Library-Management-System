@@ -5,6 +5,7 @@ import com.zosh.modal.User;
 import com.zosh.payload.dto.NotificationDTO;
 import com.zosh.payload.request.PushTokenRequest;
 import com.zosh.payload.response.ApiResponse;
+import com.zosh.service.NotificationSchedulerService;
 import com.zosh.service.NotificationService;
 import com.zosh.service.PushTokenService;
 import com.zosh.service.UserService;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -40,6 +42,7 @@ import java.util.Map;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationSchedulerService notificationSchedulerService;
     private final PushTokenService pushTokenService;
     private final UserService userService;
 
@@ -167,6 +170,29 @@ public class NotificationController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse("Push token registered successfully", true));
+    }
+
+    // ==================== ADMIN: MANUAL TRIGGERS ====================
+
+    @PostMapping("/admin/trigger/due-date-alerts")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse> triggerDueDateAlerts() {
+        notificationSchedulerService.triggerDueDateAlertsManually();
+        return ResponseEntity.ok(new ApiResponse("Due date alert notifications sent", true));
+    }
+
+    @PostMapping("/admin/trigger/book-reminders")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse> triggerBookReminders() {
+        notificationSchedulerService.triggerBookRemindersManually();
+        return ResponseEntity.ok(new ApiResponse("Book reminder notifications sent", true));
+    }
+
+    @PostMapping("/admin/trigger/overdue-notices")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse> triggerOverdueNotices() {
+        notificationSchedulerService.triggerOverdueNotificationsManually();
+        return ResponseEntity.ok(new ApiResponse("Overdue notices sent", true));
     }
 
     /**

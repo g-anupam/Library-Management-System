@@ -119,6 +119,44 @@ export const deleteAllNotifications = createAsyncThunk(
   }
 );
 
+// ==================== ADMIN: MANUAL TRIGGERS ====================
+
+export const triggerDueDateAlerts = createAsyncThunk(
+  'notification/triggerDueDateAlerts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`${API_URL}/admin/trigger/due-date-alerts`, {}, { headers: getHeaders() });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to trigger due date alerts');
+    }
+  }
+);
+
+export const triggerBookReminders = createAsyncThunk(
+  'notification/triggerBookReminders',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`${API_URL}/admin/trigger/book-reminders`, {}, { headers: getHeaders() });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to trigger book reminders');
+    }
+  }
+);
+
+export const triggerOverdueNotices = createAsyncThunk(
+  'notification/triggerOverdueNotices',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`${API_URL}/admin/trigger/overdue-notices`, {}, { headers: getHeaders() });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to trigger overdue notices');
+    }
+  }
+);
+
 // ==================== PUSH TOKEN OPERATIONS ====================
 
 /**

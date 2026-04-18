@@ -41,6 +41,11 @@ import {
   updateBookLoan,
 } from "../../../store/features/bookLoans/bookLoanThunk";
 import { createFine } from "../../../store/features/fines/fineThunk";
+import {
+  triggerDueDateAlerts,
+  triggerBookReminders,
+  triggerOverdueNotices,
+} from "../../../store/features/notification/notificationThunk";
 
 export default function AdminBookLoansPage() {
   const dispatch = useDispatch();
@@ -80,6 +85,28 @@ export default function AdminBookLoansPage() {
     finePaid: false,
     notes: "",
   });
+
+  // Notification trigger state
+  const [notifLoading, setNotifLoading] = useState({ dueDateAlerts: false, bookReminders: false, overdueNotices: false });
+  const [notifResult, setNotifResult] = useState(null);
+
+  const handleTriggerNotification = async (type) => {
+    const thunkMap = {
+      dueDateAlerts: triggerDueDateAlerts,
+      bookReminders: triggerBookReminders,
+      overdueNotices: triggerOverdueNotices,
+    };
+    setNotifLoading((prev) => ({ ...prev, [type]: true }));
+    setNotifResult(null);
+    try {
+      await dispatch(thunkMap[type]()).unwrap();
+      setNotifResult({ severity: 'success', message: 'Notifications sent successfully' });
+    } catch (err) {
+      setNotifResult({ severity: 'error', message: err || 'Failed to send notifications' });
+    } finally {
+      setNotifLoading((prev) => ({ ...prev, [type]: false }));
+    }
+  };
 
   // Create fine dialog state
   const [createFineDialogOpen, setCreateFineDialogOpen] = useState(false);
@@ -486,6 +513,46 @@ export default function AdminBookLoansPage() {
           </Paper>
         </Grid>
       </Grid>
+
+      {/* Manual Notification Triggers */}
+      <Paper sx={{ p: 2, mb: 3, border: '1px solid', borderColor: 'warning.light' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+          Send Notifications Now
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Manually trigger notification jobs — same as the scheduled runs at 8/9/10 AM.
+        </Typography>
+        {notifResult && (
+          <Alert severity={notifResult.severity} onClose={() => setNotifResult(null)} sx={{ mb: 2 }}>
+            {notifResult.message}
+          </Alert>
+        )}
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <Button
+            variant="outlined"
+            color="warning"
+            disabled={notifLoading.overdueNotices}
+            onClick={() => handleTriggerNotification('overdueNotices')}
+          >
+            {notifLoading.overdueNotices ? 'Sending...' : 'Overdue Notices'}
+          </Button>
+          <Button
+            variant="outlined"
+            color="info"
+            disabled={notifLoading.dueDateAlerts}
+            onClick={() => handleTriggerNotification('dueDateAlerts')}
+          >
+            {notifLoading.dueDateAlerts ? 'Sending...' : 'Due Date Alerts'}
+          </Button>
+          <Button
+            variant="outlined"
+            disabled={notifLoading.bookReminders}
+            onClick={() => handleTriggerNotification('bookReminders')}
+          >
+            {notifLoading.bookReminders ? 'Sending...' : 'Book Reminders'}
+          </Button>
+        </Box>
+      </Paper>
 
       {/* Filter and Sort Controls */}
       <Box

@@ -458,14 +458,14 @@ public class BookLoanServiceImpl implements BookLoanService {
                 BookLoanStatus.RETURNED, PageRequest.of(0, Integer.MAX_VALUE))
                 .getTotalElements();
 
-        return new CheckoutStatistics(
-                totalCheckouts,
-                activeCheckouts,
-                overdueCheckouts,
-                totalReturns,
-               null,
-                0
-        );
+        CheckoutStatistics stats = new CheckoutStatistics();
+        stats.setTotalCheckouts(totalCheckouts);
+        stats.setActiveCheckouts(activeCheckouts);
+        stats.setOverdueCheckouts(overdueCheckouts);
+        stats.setTotalReturns(totalReturns);
+        stats.setTotalUnpaidFines(null);
+        stats.setTransactionsWithFines(0L);
+        return stats;
     }
 
     // ==================== HELPER METHODS ====================
@@ -497,16 +497,16 @@ public class BookLoanServiceImpl implements BookLoanService {
                 .map(bookLoanMapper::toDTO)
                 .collect(Collectors.toList());
 
-        return new PageResponse<>(
-                bookLoanDTOs,
-                bookLoanPage.getNumber(),
-                bookLoanPage.getSize(),
-                bookLoanPage.getTotalElements(),
-                bookLoanPage.getTotalPages(),
-                bookLoanPage.isLast(),
-                bookLoanPage.isFirst(),
-                bookLoanPage.isEmpty()
-        );
+        PageResponse<BookLoanDTO> response = new PageResponse<>();
+        response.setContent(bookLoanDTOs);
+        response.setPageNumber(bookLoanPage.getNumber());
+        response.setPageSize(bookLoanPage.getSize());
+        response.setTotalElements(bookLoanPage.getTotalElements());
+        response.setTotalPages(bookLoanPage.getTotalPages());
+        response.setLast(bookLoanPage.isLast());
+        response.setFirst(bookLoanPage.isFirst());
+        response.setEmpty(bookLoanPage.isEmpty());
+        return response;
     }
 
     /**

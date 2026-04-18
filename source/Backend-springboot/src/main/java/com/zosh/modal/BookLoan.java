@@ -89,6 +89,9 @@ public class BookLoan {
     @Column(name = "overdue_days")
     private Integer overdueDays = 0;
 
+    @Column(name = "total_outstanding", nullable = false)
+    private Long totalOutstanding = 0L;
+
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -129,7 +132,7 @@ public class BookLoan {
      */
     public long getTotalFineAmount() {
         return fines.stream()
-                .mapToLong(Fine::getAmount)
+                .mapToLong(f -> f.getAmount())
                 .sum();
     }
 
@@ -137,10 +140,12 @@ public class BookLoan {
      * Get total outstanding (unpaid) fine amount
      * @return Total unpaid fine amount
      */
-    long totalOutstanding = fines.stream()
-            .filter(Fine::isPending)
-            .mapToLong(Fine::getAmountOutstanding)
-            .sum();
+    public long getTotalOutstandingFineAmount() {
+        return fines.stream()
+                .filter(Fine::isPending)
+                .mapToLong(f -> f.getAmountOutstanding())
+                .sum();
+    }
 
 
 

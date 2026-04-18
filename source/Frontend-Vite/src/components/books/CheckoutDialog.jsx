@@ -32,6 +32,7 @@ const CheckoutDialog = ({ open, onClose, onConfirm, book, loading = false }) => 
   const [error, setError] = useState('');
 
   const checkoutOptions = [
+    { value: 1, label: '1 Day (Demo)' },
     { value: 7, label: '1 Week (7 days)' },
     { value: 14, label: '2 Weeks (14 days)' },
     { value: 21, label: '3 Weeks (21 days)' },
