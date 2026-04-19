@@ -31,7 +31,7 @@ import {
   Info as InfoIcon,
 } from "@mui/icons-material";
 import Layout from "../../components/layout/Layout";
-import { getMyFines, payFine } from "../../store/features/fines/fineThunk";
+import { getMyFines, payFine, payFinePartially } from "../../store/features/fines/fineThunk";
 import MyFineState from "./MyFineState";
 import MyFineCard from "./MyFineCard";
 
@@ -90,15 +90,16 @@ const MyFinesPage = () => {
     setPaymentDialog({ open: true, fine });
   };
 
-  const confirmPayment = async () => {
+  const confirmPayment = async (mode, partialAmountInPaise) => {
     try {
-      await dispatch(payFine({ fineId: paymentDialog.fine.id })).unwrap();
-      showSnackbar(
-        `Fine of ₹${paymentDialog.fine.amountOutstanding.toFixed(
-          2
-        )} paid successfully!`,
-        "success"
-      );
+      if (mode === "partial") {
+        await dispatch(
+          payFinePartially({ fineId: paymentDialog.fine.id, amount: partialAmountInPaise })
+        ).unwrap();
+      } else {
+        await dispatch(payFine({ fineId: paymentDialog.fine.id })).unwrap();
+      }
+      showSnackbar("Payment initiated successfully!", "success");
       setPaymentDialog({ open: false, fine: null });
       loadFines();
     } catch (err) {

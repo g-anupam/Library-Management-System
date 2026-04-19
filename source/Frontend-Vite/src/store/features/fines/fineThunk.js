@@ -49,6 +49,27 @@ export const payFine = createAsyncThunk(
   }
 );
 
+/**
+ * Pay a fine partially
+ * POST /api/fines/{id}/pay/partial?amount=500
+ */
+export const payFinePartially = createAsyncThunk(
+  'fines/payFinePartially',
+  async ({ fineId, amount }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `${API_URL}/${fineId}/pay/partial?amount=${amount}`,
+        {},
+        { headers: getHeaders() }
+      );
+      window.location.href = response.data?.checkoutUrl;
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Partial payment failed');
+    }
+  }
+);
+
 // ==================== WAIVER OPERATIONS ====================
 
 /**

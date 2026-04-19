@@ -43,6 +43,8 @@ public interface FineService {
 
     void markFineAsPaid(Long fineId, Long amount, String transactionId);
 
+    PaymentInitiateResponse payFinePartially(Long fineId, Long amount) throws FineException, PaymentException;
+
     // ==================== WAIVER OPERATIONS ====================
 
     /**

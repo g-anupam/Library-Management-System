@@ -128,21 +128,55 @@ public class FineServiceImpl implements FineService {
     }
 
     @Override
+    public PaymentInitiateResponse payFinePartially(Long fineId, Long amount) throws FineException, PaymentException {
+        Fine fine = fineRepository.findById(fineId)
+                .orElseThrow(() -> new FineException("Fine not found with id: " + fineId));
+
+        if (fine.getStatus() == FineStatus.PAID) {
+            throw new FineException("Fine is already fully paid");
+        }
+        if (fine.getStatus() == FineStatus.WAIVED) {
+            throw new FineException("Fine has been waived and cannot be paid");
+        }
+        if (amount <= 0 || amount > fine.getAmountOutstanding()) {
+            throw new FineException("Partial amount must be between 1 and the outstanding balance of " + fine.getAmountOutstanding());
+        }
+
+        User currentUser = getCurrentAuthenticatedUser();
+
+        PaymentInitiateRequest context = PaymentInitiateRequest.builder()
+                .userId(currentUser.getId())
+                .fineId(fine.getId())
+                .paymentType(PaymentType.FINE)
+                .gateway(PaymentGateway.RAZORPAY)
+                .amount(amount)
+                .currency("INR")
+                .description("Partial payment for fine ID " + fine.getId())
+                .build();
+
+        return paymentService.initiatePayment(context);
+    }
+
+    @Override
     @Transactional
     public void markFineAsPaid(Long fineId, Long amount, String transactionId) throws FineException {
         Fine fine = fineRepository.findById(fineId)
                 .orElseThrow(() -> new FineException(
                         "Fine not found with id: " + fineId));
 
-        // Apply payment amount safely
+        // Idempotency: skip if this transaction was already applied
+        if (transactionId != null && transactionId.equals(fine.getTransactionId())) {
+            log.info("Fine {} already processed for txn: {}, skipping", fineId, transactionId);
+            return;
+        }
+
         fine.applyPayment(amount);
         fine.setTransactionId(transactionId);
-        fine.setStatus(FineStatus.PAID);
         fine.setUpdatedAt(LocalDateTime.now());
 
         fineRepository.save(fine);
 
-        log.info("Fine {} marked as fully paid (txn: {})", fineId, transactionId);
+        log.info("Fine {} payment applied: amount={}, status={}, txn: {}", fineId, amount, fine.getStatus(), transactionId);
     }
 
 

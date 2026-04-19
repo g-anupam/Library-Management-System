@@ -87,6 +87,28 @@ public class FineController {
         }
     }
 
+    /**
+     * Pay a fine partially
+     * POST /api/fines/{id}/pay/partial?amount=500
+     */
+    @PostMapping("/{id}/pay/partial")
+    public ResponseEntity<?> payFinePartially(
+        @PathVariable Long id,
+        @RequestParam Long amount) {
+        try {
+            log.info("Partial payment of {} for fine: {}", amount, id);
+            PaymentInitiateResponse response = fineService.payFinePartially(id, amount);
+            return ResponseEntity.ok(response);
+        } catch (FineException e) {
+            log.error("Partial payment failed for fine: {}", id, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse(e.getMessage(), false));
+        } catch (PaymentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse(e.getMessage(), false));
+        }
+    }
+
     // ==================== WAIVER OPERATIONS ====================
 
     /**

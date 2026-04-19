@@ -212,7 +212,7 @@ public class RazorpayService {
                 Fine fine =fineRepository.findById(fineId).orElseThrow(
                         () -> new FineException("Fine not found with given id....")
                 );
-                return  fine.getAmount()==amountInRupees;
+                return amountInRupees > 0 && amountInRupees <= fine.getAmount();
             }
 
 

@@ -124,7 +124,7 @@ public class Fine {
             throw new IllegalArgumentException("Payment amount must be positive");
         }
 
-        this.amountPaid = paymentAmount;
+        this.amountPaid = (this.amountPaid == null ? 0L : this.amountPaid) + paymentAmount;
 
         // Update status based on amount paid
         if (this.amountPaid >= this.amount) {
