@@ -117,7 +117,10 @@ const MyFinesPage = () => {
 
   // Calculate total outstanding
   const totalOutstanding = filteredFines.reduce(
-    (sum, fine) => sum + (fine.amountOutstanding || 0),
+    (sum, fine) =>
+      fine.status === "WAIVED" || fine.status === "PAID"
+        ? sum
+        : sum + (fine.amountOutstanding || 0),
     0
   );
 
